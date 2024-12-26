@@ -1999,7 +1999,7 @@ detectSystem = Configure(
     },
 )
 
-toolchain_search_sequence = ["GCC", "clang"]
+toolchain_search_sequence = ["clang", "GCC"]
 if mongo_platform.is_running_os('windows'):
     toolchain_search_sequence = ['MSVC', 'clang', 'GCC']
 

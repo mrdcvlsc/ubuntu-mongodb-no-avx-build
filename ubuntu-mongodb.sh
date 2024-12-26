@@ -47,22 +47,30 @@ sudo apt-get install -y \
     libssl-dev
 
 echo "============================================================"
+echo "Install Clang"
+echo "============================================================"
+
+wget https://apt.llvm.org/llvm.sh
+
+echo "------------------------------------------------------------"
+
+chmod +x llvm.sh
+
+echo "------------------------------------------------------------"
+
+sudo ./llvm.sh
+
+echo "------------------------------------------------------------"
+
+clang -v
+
+echo "============================================================"
 echo "Download and extract MongoDB source"
 echo "============================================================"
 
 curl -L $MONGO_SOURCE_URL -o mongo-$RELEASE_MONGO_VERSION.tar.gz
 tar -xzf mongo-$RELEASE_MONGO_VERSION.tar.gz
 cd mongo-$RELEASE_MONGO_VERSION
-
-echo "============================================================"
-echo "Set up environment variables for clang and architecture compatibility"
-echo "============================================================"
-
-export CC=clang
-export CXX=clang++
-export CFLAGS="-march=x86-64 -mtune=generic -O3"
-export CCFLAGS="-march=x86-64 -mtune=generic -O3"
-export CXXFLAGS="-march=x86-64 -mtune=generic -O3"
 
 echo "============================================================"
 echo "Set up Python environment"
@@ -131,6 +139,22 @@ if uname -a | grep -q 's390x\|ppc64le'; then
 fi
 
 echo "============================================================"
+echo "Set up environment variables for clang and architecture compatibility"
+echo "============================================================"
+
+export CC=clang
+export CXX=clang++
+export CFLAGS="-march=x86-64 -mtune=generic -O2"
+export CCFLAGS="-march=x86-64 -mtune=generic -O2"
+export CXXFLAGS="-march=x86-64 -mtune=generic -O2"
+
+CC=clang
+CXX=clang++
+CFLAGS="-march=x86-64 -mtune=generic -O2"
+CCFLAGS="-march=x86-64 -mtune=generic -O2"
+CXXFLAGS="-march=x86-64 -mtune=generic -O2"
+
+echo "============================================================"
 echo "Build MongoDB"
 echo "============================================================"
 
@@ -138,7 +162,11 @@ cp ../SConstruct-Patch ./SConstruct
 
 echo "------------------------------------------------------------"
 
-python3.10 buildscripts/scons.py MONGO_VERSION=$MONGO_VERSION_RAW install-mongod --jobs=4 --disable-warnings-as-errors --linker=gold
+python3.10 -m pip install cxxfilt
+
+echo "------------------------------------------------------------"
+
+python3.10 buildscripts/scons.py MONGO_VERSION=$MONGO_VERSION_RAW install-mongod --jobs=4 --disable-warnings-as-errors --linker=auto
 
 echo "============================================================"
 echo "MongoDB build complete. Binaries are located in the 'build/install/bin' directory."

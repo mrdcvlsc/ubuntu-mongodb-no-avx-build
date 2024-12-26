@@ -35,7 +35,15 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
-    - name: Make Script An build
+    - name: Initial Check of LD
+      run: ld --version
+
+    - uses: rui314/setup-mold@v1
+
+    - name: After Check of LD
+      run: ld --version
+
+    - name: Make Script Executable
       run: chmod +x ubuntu-mongodb.sh
 
     - name: Run Script
