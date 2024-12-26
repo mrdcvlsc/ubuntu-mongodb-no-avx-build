@@ -102,9 +102,19 @@ echo "Build MongoDB"
 echo "============================================================"
 
 cp ../SConstruct-Patch ./SConstruct
+
+echo "------------------------------------------------------------"
+
+python3 -m ensurepip --upgrade
+
+# echo "------------------------------------------------------------"
+
+# python3 -m pip install --upgrade setuptools
+
+echo "------------------------------------------------------------"
+
 python3 buildscripts/scons.py MONGO_VERSION=$MONGO_VERSION_RAW install-mongod --jobs=2 --disable-warnings-as-errors --linker=gold
 
-# Inform the user of the build location
 echo "============================================================"
 echo "MongoDB build complete. Binaries are located in the 'build/install/bin' directory."
 echo "============================================================"
