@@ -101,6 +101,7 @@ echo "============================================================"
 echo "Build MongoDB"
 echo "============================================================"
 
+cp ../SConstruct-Patch ./SConstruct
 python3 buildscripts/scons.py MONGO_VERSION=$MONGO_VERSION_RAW install-mongod --jobs=2 --disable-warnings-as-errors --linker=gold
 
 # Inform the user of the build location
