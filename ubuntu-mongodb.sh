@@ -13,22 +13,38 @@ RELEASE_MONGO_VERSION="r$MONGO_VERSION_RAW"
 MONGO_SOURCE_URL="https://github.com/mongodb/mongo/archive/refs/tags/$RELEASE_MONGO_VERSION.tar.gz"
 
 echo "============================================================"
+echo "Installing Python 3.10.x"
+echo "============================================================"
+
+sudo add-apt-repository ppa:deadsnakes/ppa
+echo "---------------------py01-----------------------------------"
+sudo apt-get update
+echo "---------------------py02-----------------------------------"
+sudo apt-get upgrade
+echo "---------------------py03-----------------------------------"
+sudo apt-get install python3.10
+echo "---------------------py04-----------------------------------"
+sudo apt-get install python3.10-venv
+echo "---------------------py04.5---------------------------------"
+sudo apt-get install python3-dev
+echo "---------------------py04.7---------------------------------"
+sudo apt-get install python3.10-dev
+# echo "---------------------py05-----------------------------------"
+# sudo apt-get install python3.10-pip
+echo "---------------------py06-----------------------------------"
+sudo apt-get install python-dev-is-python3
+
+echo "============================================================"
 echo "Dependencies installation"
 echo "============================================================"
 
-sudo apt-get update
-sudo apt-get upgrade
 sudo apt-get install -y \
     build-essential \
     libcurl4-openssl-dev \
     liblzma-dev \
-    python3 \
-    python3-venv \
-    python3-pip \
     ninja-build \
     git \
-    libssl-dev \
-    python-dev-is-python3
+    libssl-dev
 
 echo "============================================================"
 echo "Download and extract MongoDB source"
@@ -52,49 +68,66 @@ echo "============================================================"
 echo "Set up Python environment"
 echo "============================================================"
 
-python3 -m venv python3-venv --prompt mongo
+python3.10 -m venv python3-venv --prompt mongo
 source python3-venv/bin/activate
 
 echo "============================================================"
 echo "Install Python dependencies"
 echo "============================================================"
-pip install --upgrade pip
-echo "------------------------------------------------------------"
-python3 -m pip install setuptools
-echo "------------------------------------------------------------"
-python3 -m pip install wheel
-echo "------------------------------------------------------------"
-python3 -m pip install distlib
-echo "------------------------------------------------------------"
-python3 -m pip install --no-use-pep517 'pymongo==4.3.3'
-echo "------------------------------------------------------------"
-python3 -m pip install --no-use-pep517 'zope-interface==5.0.0'
-echo "------------------------------------------------------------"
-python3 -m pip install --no-use-pep517 'sentinels==1.0.0'
-echo "------------------------------------------------------------"
-python3 -m pip install --no-use-pep517 'psutil==5.8.0'
-echo "------------------------------------------------------------"
-python3 -m pip install --no-use-pep517 'pyyaml==5.3.1'
-echo "------------------------------------------------------------"
-python3 -m pip install --no-use-pep517 'cheetah3==3.2.6.post1'
-echo "------------------------------------------------------------"
-python3 -m pip install --no-use-pep517 'requests-oauth==0.4.1'
-echo "------------------------------------------------------------"
-python3 -m pip install --no-use-pep517 'pykmip==0.10.0'
-echo "------------------------------------------------------------"
-python3 -m pip install --no-use-pep517 'regex==2021.11.10'
-echo "------------------------------------------------------------"
 
-python3 -m pip install 'poetry==1.8.3'
+echo "---------------------py07-----------------------------------"
+
+echo "Using python version:"
+python --version
+
+echo "---------------------py08-----------------------------------"
+
+echo "Using python version:"
+python3 --version
+
+echo "---------------------py09-----------------------------------"
+
+echo "Using python version:"
+python3.10 --version
 
 echo "------------------------------------------------------------"
+python3.10 -m pip install --upgrade pip
+echo "------------------------------------------------------------"
+python3.10 -m pip install setuptools
+echo "------------------------------------------------------------"
+python3.10 -m pip install wheel
+echo "------------------------------------------------------------"
+python3.10 -m pip install distlib
+echo "------------------------------------------------------------"
+python3.10 -m pip install --no-use-pep517 'pymongo==4.3.3'
+echo "------------------------------------------------------------"
+python3.10 -m pip install --no-use-pep517 'zope-interface==5.0.0'
+echo "------------------------------------------------------------"
+python3.10 -m pip install --no-use-pep517 'sentinels==1.0.0'
+echo "------------------------------------------------------------"
+python3.10 -m pip install --no-use-pep517 'psutil==5.8.0'
+echo "------------------------------------------------------------"
+python3.10 -m pip install --no-use-pep517 'pyyaml==5.3.1'
+echo "------------------------------------------------------------"
+python3.10 -m pip install --no-use-pep517 'cheetah3==3.2.6.post1'
+echo "------------------------------------------------------------"
+python3.10 -m pip install --no-use-pep517 'requests-oauth==0.4.1'
+echo "------------------------------------------------------------"
+python3.10 -m pip install --no-use-pep517 'pykmip==0.10.0'
+echo "------------------------------------------------------------"
+python3.10 -m pip install --no-use-pep517 'regex==2021.11.10'
+echo "------------------------------------------------------------"
 
-python3 -m poetry install --no-root --sync
+python3.10 -m pip install 'poetry==1.8.3'
+
+echo "------------------------------------------------------------"
+
+python3.10 -m poetry install --no-root --sync
 
 if uname -a | grep -q 's390x\|ppc64le'; then
     echo "-------------------cryptography-----------------------------"
-    python3 -m pip uninstall -y cryptography==2.3
-    python3 -m pip install cryptography==2.3
+    python3.10 -m pip uninstall -y cryptography==2.3
+    python3.10 -m pip install cryptography==2.3
 fi
 
 echo "============================================================"
@@ -105,15 +138,7 @@ cp ../SConstruct-Patch ./SConstruct
 
 echo "------------------------------------------------------------"
 
-python3 -m ensurepip --upgrade
-
-# echo "------------------------------------------------------------"
-
-# python3 -m pip install --upgrade setuptools
-
-echo "------------------------------------------------------------"
-
-python3 buildscripts/scons.py MONGO_VERSION=$MONGO_VERSION_RAW install-mongod --jobs=2 --disable-warnings-as-errors --linker=gold
+python3.10 buildscripts/scons.py MONGO_VERSION=$MONGO_VERSION_RAW install-mongod --jobs=2 --disable-warnings-as-errors --linker=gold
 
 echo "============================================================"
 echo "MongoDB build complete. Binaries are located in the 'build/install/bin' directory."
