@@ -166,7 +166,7 @@ python3.10 -m pip install cxxfilt
 
 echo "------------------------------------------------------------"
 
-python3.10 buildscripts/scons.py MONGO_VERSION=$MONGO_VERSION_RAW install-mongod --jobs=4 --disable-warnings-as-errors --linker=gold
+python3.10 buildscripts/scons.py MONGO_VERSION=$MONGO_VERSION_RAW install-mongod --force-jobs --jobs=8 --disable-warnings-as-errors --linker=gold
 
 echo "============================================================"
 echo "MongoDB build complete. Binaries are located in the 'build/install/bin' directory."
