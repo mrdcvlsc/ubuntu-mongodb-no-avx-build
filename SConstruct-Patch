@@ -3201,7 +3201,7 @@ if env.TargetOSIs('posix'):
             )
 
     # env.Append( " -Wconversion" ) TODO: this doesn't really work yet
-    env.Append(CXXFLAGS=["-Woverloaded-virtual"])
+    # env.Append(CXXFLAGS=["-Woverloaded-virtual"])
 
     # On OS X, clang doesn't want the pthread flag at link time, or it
     # issues warnings which make it impossible for us to declare link
