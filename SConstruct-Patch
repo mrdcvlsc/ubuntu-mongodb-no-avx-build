@@ -3132,7 +3132,8 @@ if env.TargetOSIs('posix'):
     env.Append(
         CCFLAGS=[
             "-fasynchronous-unwind-tables",
-            "-g2" if not env.TargetOSIs('emscripten') else "-g",
+            # patch: remove debugging information
+            # "-g2" if not env.TargetOSIs('emscripten') else "-g",
             "-Wall",
             "-Wsign-compare",
             "-Wno-unknown-pragmas",
@@ -3142,10 +3143,11 @@ if env.TargetOSIs('posix'):
     if env.get('DWARF_VERSION'):
         if env.TargetOSIs('darwin'):
             env.FatalError("Setting DWARF_VERSION on darwin is not supported.")
-        env.AppendUnique(
-            CCFLAGS=['-gdwarf-$DWARF_VERSION'],
-            LINKFLAGS=['-gdwarf-$DWARF_VERSION'],
-        )
+        # patch: remove debugging information
+        # env.AppendUnique(
+        #     CCFLAGS=['-gdwarf-$DWARF_VERSION'],
+        #     LINKFLAGS=['-gdwarf-$DWARF_VERSION'],
+        # )
 
     # TODO: At least on x86, glibc as of 2.3.4 will consult the
     # .eh_frame info via _Unwind_Backtrace to do backtracing without
@@ -4564,11 +4566,14 @@ def doConfigure(myenv):
         # Pass -gdwarf{32,64} if an explicit value was selected
         # or defaulted. Fail the build if we can't honor the
         # selection.
+
         if myenv['DWARF_WIDTH']:
-            if myenv.AddToCCFLAGSIfSupported('-gdwarf$DWARF_WIDTH'):
-                myenv.AppendUnique(LINKFLAGS=['-gdwarf$DWARF_WIDTH'])
-            else:
-                myenv.FatalError('Could not enable selected dwarf width')
+            # patch: remove debugging information
+            # if myenv.AddToCCFLAGSIfSupported('-gdwarf$DWARF_WIDTH'):
+            #     myenv.AppendUnique(LINKFLAGS=['-gdwarf$DWARF_WIDTH'])
+            # else:
+            #     myenv.FatalError('Could not enable selected dwarf width')
+            pass # this line replaced the commented out code
 
         # try to determine the if dwarf64 is viable, and fallback to dwarf32 if not
         elif myenv.CheckCCFLAGSSupported('-gdwarf64'):
@@ -4595,7 +4600,8 @@ def doConfigure(myenv):
                     original_ccflags = context.env.get('CCFLAGS')
                     original_linkflags = context.env.get('LINKFLAGS')
 
-                    context.env.Append(CCFLAGS=['-gdwarf64'], LINKFLAGS=['-gdwarf64'])
+                    # patch: remove debugging information
+                    # context.env.Append(CCFLAGS=['-gdwarf64'], LINKFLAGS=['-gdwarf64'])
 
                     ret = context.TryLink(textwrap.dedent(test_body), ".cpp")
 
@@ -4628,10 +4634,12 @@ def doConfigure(myenv):
 
             if conf.CheckForDWARF64Support():
                 myenv['DWARF_WIDTH'] = 64
-                myenv.AppendUnique(LINKFLAGS=['-gdwarf64'], CCFLAGS=['-gdwarf64'])
+                # patch: remove debugging information
+                # myenv.AppendUnique(LINKFLAGS=['-gdwarf64'], CCFLAGS=['-gdwarf64'])
             else:
                 myenv['DWARF_WIDTH'] = 32
-                myenv.AppendUnique(LINKFLAGS=['-gdwarf32'], CCFLAGS=['-gdwarf32'])
+                # patch: remove debugging information
+                # myenv.AppendUnique(LINKFLAGS=['-gdwarf32'], CCFLAGS=['-gdwarf32'])
 
             conf.Finish()
 
