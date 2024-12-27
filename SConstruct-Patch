@@ -3134,10 +3134,10 @@ if env.TargetOSIs('posix'):
             "-fasynchronous-unwind-tables",
             # patch: remove debugging information
             # "-g2" if not env.TargetOSIs('emscripten') else "-g",
-            "-Wall",
-            "-Wsign-compare",
+            # "-Wall",
+            # "-Wsign-compare",
             "-Wno-unknown-pragmas",
-            "-Winvalid-pch",
+            # "-Winvalid-pch",
         ], )
 
     if env.get('DWARF_VERSION'):
@@ -3759,7 +3759,7 @@ def doConfigure(myenv):
         myenv.AddToCCFLAGSIfSupported("-Wno-psabi")
 
         # Warn about moves of prvalues, which can inhibit copy elision.
-        myenv.AddToCXXFLAGSIfSupported("-Wpessimizing-move")
+        # myenv.AddToCXXFLAGSIfSupported("-Wpessimizing-move")
 
         # Disable warning about variables that may not be initialized
         # Failures are triggered in the case of boost::optional in GCC 4.8.x
