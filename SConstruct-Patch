@@ -360,7 +360,7 @@ add_option(
 )
 
 experimental_optimizations = [
-    'O3',
+    'O2',
     'builtin-memcmp',
     'fnsi',
     'nofp',
@@ -3276,8 +3276,8 @@ if env.TargetOSIs('posix'):
         elif optBuild == "debug":
             env.Append(CCFLAGS=["-Og"])
         else:
-            if "O3" in selected_experimental_optimizations:
-                env.Append(CCFLAGS=["-O3"])
+            if "O2" in selected_experimental_optimizations:
+                env.Append(CCFLAGS=["-O2"])
             else:
                 env.Append(CCFLAGS=["-O2"])
 
@@ -3328,7 +3328,7 @@ if not env.TargetOSIs('windows', 'macOS') and (env.ToolchainIs('GCC', 'clang')):
     # heavy versions can cause clock speed reductions.
     if "sandybridge" in selected_experimental_optimizations:
         default_targeting_flags_for_architecture["x86_64"] = {
-            "-march=": "sandybridge",
+            "-march=": "x86-64",
             "-mtune=": "generic",
             "-mprefer-vector-width=": "128",
         }
