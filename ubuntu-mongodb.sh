@@ -139,20 +139,10 @@ if uname -a | grep -q 's390x\|ppc64le'; then
 fi
 
 echo "============================================================"
-echo "Set up environment variables for clang and architecture compatibility"
+echo "Display GCC Target Help Output"
 echo "============================================================"
 
-export CC=clang
-export CXX=clang++
-export CFLAGS="-march=x86-64 -mtune=generic -O2"
-export CCFLAGS="-march=x86-64 -mtune=generic -O2"
-export CXXFLAGS="-march=x86-64 -mtune=generic -O2"
-
-CC=clang
-CXX=clang++
-CFLAGS="-march=x86-64 -mtune=generic -O2"
-CCFLAGS="-march=x86-64 -mtune=generic -O2"
-CXXFLAGS="-march=x86-64 -mtune=generic -O2"
+gcc --target-help
 
 echo "============================================================"
 echo "Build MongoDB"
@@ -163,12 +153,12 @@ cp ../SConstruct-Patch ./SConstruct
 echo "------------------------------------------------------------"
 
 python3.10 -m pip install cxxfilt
-pip install scons
+# pip install scons
 
 echo "------------------------------------------------------------"
 
-# python3.10 buildscripts/scons.py MONGO_VERSION=$MONGO_VERSION_RAW install-mongod --force-jobs --jobs=8 --disable-warnings-as-errors --linker=gold
-python3.10 -m scons MONGO_VERSION=$MONGO_VERSION_RAW install-mongod --force-jobs --jobs=8 --disable-warnings-as-errors --linker=gold
+python3.10 buildscripts/scons.py MONGO_VERSION=$MONGO_VERSION_RAW install-mongod --force-jobs --jobs=8 --disable-warnings-as-errors --linker=gold
+# python3.10 -m scons MONGO_VERSION=$MONGO_VERSION_RAW install-mongod --force-jobs --jobs=8 --disable-warnings-as-errors --linker=gold
 
 echo "============================================================"
 echo "MongoDB build complete. Binaries are located in the 'build/install/bin' directory."
