@@ -27,7 +27,7 @@ jobs:
         # - { name: Windows Clang,  os: windows-latest, binfolder: .\\build\\bin\\Release, zipped: windows-build-clang.zip, zipper: 7z a -tzip, flags: -G "Unix Makefiles" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
         # - { name: Windows GCC,    os: windows-latest, binfolder: .\\build\\bin\\Release, zipped: windows-build-gcc.zip,   zipper: 7z a -tzip, flags: -G "Unix Makefiles" -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ }
         # - { name: MacOS XCode,    os: macos-latest,   binfolder: ./build/bin,            zipped: mac-build.zip,           zipper: zip,       }
-        - { name: Linux GCC,      os: ubuntu-latest,  binfolder: ./mongo-r8.0.4/build,            zipped: ubuntu-build-gcc.zip,    zipper: zip -r,       }
+        - { name: Linux GCC,      os: ubuntu-latest,  binfolder: ./mongo-r8.0.4/build,   zipped: ubuntu-build-gcc.zip,    zipper: zip -r,       }
         # - { name: Linux Clang,    os: ubuntu-latest,  binfolder: ./build/bin,            zipped: ubuntu-build-clang.zip,  zipper: zip -r,        flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
 
     steps:
@@ -50,16 +50,16 @@ jobs:
       run: ./ubuntu-mongodb.sh
 
     - name: Compress ${{matrix.platform.binfolder}} folder
-      run: ${{matrix.platform.zipper}} ${{matrix.platform.zippped}} ${{matrix.platform.binfolder}}
+      run: ${{matrix.platform.zipper}} ${{matrix.platform.zipped}} ${{matrix.platform.binfolder}}
 
-    - name: Create github release and upload ${{matrix.platform.zippped}}
+    - name: Create github release and upload ${{matrix.platform.zipped}}
       continue-on-error: true
-      run: gh release create ${{github.ref_name}} ${{matrix.platform.zippped}} --title "${{github.ref_name}}" --notes "Release notes for ${{github.ref_name}}" --draft=false --prerelease=false
+      run: gh release create ${{github.ref_name}} ${{matrix.platform.zipped}} --title "${{github.ref_name}}" --notes "Release notes for ${{github.ref_name}}" --draft=false --prerelease=false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Upload ${{matrix.platform.zippped}} to release
+    - name: Upload ${{matrix.platform.zipped}} to release
       continue-on-error: true
-      run: gh release upload ${{github.ref_name}} ${{matrix.platform.zippped}}
+      run: gh release upload ${{github.ref_name}} ${{matrix.platform.zipped}}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
