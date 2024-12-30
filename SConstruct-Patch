@@ -360,7 +360,7 @@ add_option(
 )
 
 experimental_optimizations = [
-    'O2',
+    'O3',
     'builtin-memcmp',
     'fnsi',
     'nofp',
@@ -3279,9 +3279,9 @@ if env.TargetOSIs('posix'):
             env.Append(CCFLAGS=["-Og"])
         else:
             if "O2" in selected_experimental_optimizations:
-                env.Append(CCFLAGS=["-O2"])
+                env.Append(CCFLAGS=["-O3"])
             else:
-                env.Append(CCFLAGS=["-O2"])
+                env.Append(CCFLAGS=["-O3"])
 
         if "treevec" in selected_experimental_optimizations:
             env.Append(CCFLAGS=["-ftree-vectorize"])
