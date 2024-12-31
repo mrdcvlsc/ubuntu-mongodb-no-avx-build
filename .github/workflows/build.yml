@@ -1,4 +1,4 @@
-name: builds
+name: build
 
 on:
     push:
@@ -6,34 +6,35 @@ on:
         - '**'
     pull_request:
 
-# on:
-#   push:
-#     tags:
-#       - 'v*'
-
 jobs:
   build:
     permissions: write-all
 
-    name: ${{ matrix.platform.name }}
+    name: mongo-r${{ matrix.mongo_release.version }}-${{ matrix.platform.os }}
     runs-on: ${{ matrix.platform.os }}
 
     strategy:
       fail-fast: false
       matrix:
         platform:
-        # - { name: Windows VS2019, os: windows-2019,   binfolder: .\\build\\bin\\Release, zipped: windows-build-VS19.zip,  zipper: 7z a -tzip }
-        # - { name: Windows VS2022, os: windows-2022,   binfolder: .\\build\\bin\\Release, zipped: windows-build-VS22.zip,  zipper: 7z a -tzip }
-        # - { name: Windows Clang,  os: windows-latest, binfolder: .\\build\\bin\\Release, zipped: windows-build-clang.zip, zipper: 7z a -tzip, flags: -G "Unix Makefiles" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
-        # - { name: Windows GCC,    os: windows-latest, binfolder: .\\build\\bin\\Release, zipped: windows-build-gcc.zip,   zipper: 7z a -tzip, flags: -G "Unix Makefiles" -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ }
-        # - { name: MacOS XCode,    os: macos-latest,   binfolder: ./build/bin,            zipped: mac-build.zip,           zipper: zip,       }
-        - { name: Linux GCC,      os: ubuntu-latest,  binfolder: ./mongo-r8.0.4/build,   zipped: ubuntu-build-gcc.zip,    zipper: zip -r,       }
-        # - { name: Linux Clang,    os: ubuntu-latest,  binfolder: ./build/bin,            zipped: ubuntu-build-clang.zip,  zipper: zip -r,        flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
+        - { os: ubuntu-20.04, zipper: zip -r }
+        - { os: ubuntu-22.04, zipper: zip -r }
+        - { os: ubuntu-24.04, zipper: zip -r }
+        mongo_release:
+        - { version: 8.0.4 }
+        - { version: 7.0.16 }
+        - { version: 6.0.20 }
 
     steps:
 
+    - name: Workflow Run Information
+      run: |
+        echo "Run ID     : ${{ github.run_id }}"
+        echo "Run Number : ${{ github.run_number }}"
+        echo "Run Attempt: ${{ github.run_attempt }}"
+
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Initial Check of LD
       run: ld --version
@@ -43,23 +44,86 @@ jobs:
     - name: After Check of LD
       run: ld --version
 
-    - name: Make Script Executable
-      run: chmod +x ubuntu-mongodb.sh
+    - name: Installing Python 3.10.x
+      run: |
+        sudo add-apt-repository ppa:deadsnakes/ppa
+        sudo apt-get update
+        sudo apt-get upgrade
+        sudo apt-get install python3.10
+        sudo apt-get install python3.10-venv
+        sudo apt-get install python3-dev
+        sudo apt-get install python3.10-dev
+        sudo apt-get install python-dev-is-python3
 
-    - name: Run Script
-      run: ./ubuntu-mongodb.sh
+    - name: Install Dependencies
+      run: |
+        sudo apt-get install -y \
+        build-essential \
+        libcurl4-openssl-dev \
+        liblzma-dev \
+        ninja-build \
+        git \
+        libssl-dev
 
-    - name: Compress ${{matrix.platform.binfolder}} folder
-      run: ${{matrix.platform.zipper}} ${{matrix.platform.zipped}} ${{matrix.platform.binfolder}}
+    - name: Install Clang
+      run: |
+        wget https://apt.llvm.org/llvm.sh
+        chmod +x llvm.sh
+        sudo ./llvm.sh
+        clang -v
 
-    - name: Create github release and upload ${{matrix.platform.zipped}}
+    - name: Download and extract MongoDB source
+      run: |
+        curl -L https://github.com/mongodb/mongo/archive/refs/tags/r${{ matrix.mongo_release.version }}.tar.gz -o mongo-r${{ matrix.mongo_release.version }}.tar.gz
+        tar -xzf mongo-r${{ matrix.mongo_release.version }}.tar.gz
+
+    - name: Build Mongo
+      run: |
+        cd mongo-r${{ matrix.mongo_release.version }}
+        
+        python3.10 -m venv python3-venv --prompt mongo
+        
+        source python3-venv/bin/activate
+
+        python3.10 -m pip install --upgrade pip
+        python3.10 -m pip install setuptools
+        python3.10 -m pip install wheel
+        python3.10 -m pip install distlib
+        python3.10 -m pip install --no-use-pep517 'pymongo==4.3.3'
+        python3.10 -m pip install --no-use-pep517 'zope-interface==5.0.0'
+        python3.10 -m pip install --no-use-pep517 'sentinels==1.0.0'
+        python3.10 -m pip install --no-use-pep517 'psutil==5.8.0'
+        python3.10 -m pip install --no-use-pep517 'pyyaml==5.3.1'
+        python3.10 -m pip install --no-use-pep517 'cheetah3==3.2.6.post1'
+        python3.10 -m pip install --no-use-pep517 'requests-oauth==0.4.1'
+        python3.10 -m pip install --no-use-pep517 'pykmip==0.10.0'
+        python3.10 -m pip install --no-use-pep517 'regex==2021.11.10'
+        
+        python3.10 -m pip install 'poetry==1.8.3'
+        
+        python3.10 -m poetry install --no-root --sync
+
+        if uname -a | grep -q 's390x\|ppc64le'; then
+            python3.10 -m pip uninstall -y cryptography==2.3
+            python3.10 -m pip install cryptography==2.3
+        fi
+
+        python3.10 -m pip install cxxfilt
+
+        cp ../SConstruct-Patch ./SConstruct
+        python3.10 buildscripts/scons.py MONGO_VERSION=${{ matrix.mongo_release.version }} install-mongod --force-jobs --jobs=8 --disable-warnings-as-errors --linker=gold
+
+    - name: Compress Folder ./mongo-r${{ matrix.mongo_release.version }}/build/install/bin
+      run: ${{ matrix.platform.zipper }} mongo-r${{ matrix.mongo_release.version }}-${{ matrix.platform.os }}.zip ./mongo-r${{ matrix.mongo_release.version }}/build/install/bin
+
+    - name: Create github release and upload mongo-r${{ matrix.mongo_release.version }}-${{ matrix.platform.os }}.zip
       continue-on-error: true
-      run: gh release create ${{github.ref_name}} ${{matrix.platform.zipped}} --title "${{github.ref_name}}" --notes "Release notes for ${{github.ref_name}}" --draft=false --prerelease=false
+      run: gh release create mongo-no-avx-build-v${{ github.run_number }} mongo-r${{ matrix.mongo_release.version }}-${{ matrix.platform.os }}.zip --title "mongo-no-avx-build-v${{ github.run_number }}" --notes "Release notes for mongo-no-avx-build-v${{ github.run_number }}" --draft=false --prerelease=false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Upload ${{matrix.platform.zipped}} to release
+    - name: Upload mongo-r${{ matrix.mongo_release.version }}-${{ matrix.platform.os }}.zip to release
       continue-on-error: true
-      run: gh release upload ${{github.ref_name}} ${{matrix.platform.zipped}}
+      run: gh release upload mongo-no-avx-build-v${{ github.run_number }} mongo-r${{ matrix.mongo_release.version }}-${{ matrix.platform.os }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
