@@ -361,6 +361,16 @@ add_option(
 
 experimental_optimizations = [
     'O3',
+    "mno-avx",
+    'msse',
+    'msse2',
+    'mssse3',
+    'msse4',
+    'msse4.1',
+    'msse4.2',
+    'mpopcnt',
+    'mmmx',
+    'mcx16',
     'builtin-memcmp',
     'fnsi',
     'nofp',
@@ -3280,8 +3290,28 @@ if env.TargetOSIs('posix'):
         else:
             if "O2" in selected_experimental_optimizations:
                 env.Append(CCFLAGS=["-O3"])
+                env.Append(CCFLAGS=["-mno-avx"])
+                env.Append(CCFLAGS=["-msse"])
+                env.Append(CCFLAGS=["-msse2"])
+                env.Append(CCFLAGS=["-mssse3"])
+                env.Append(CCFLAGS=["-msse4"])
+                env.Append(CCFLAGS=["-msse4.1"])
+                env.Append(CCFLAGS=["-msse4.2"])
+                env.Append(CCFLAGS=["-mpopcnt"])
+                env.Append(CCFLAGS=["-mmmx"])
+                env.Append(CCFLAGS=["-mcx16"])
             else:
                 env.Append(CCFLAGS=["-O3"])
+                env.Append(CCFLAGS=["-mno-avx"])
+                env.Append(CCFLAGS=["-msse"])
+                env.Append(CCFLAGS=["-msse2"])
+                env.Append(CCFLAGS=["-mssse3"])
+                env.Append(CCFLAGS=["-msse4"])
+                env.Append(CCFLAGS=["-msse4.1"])
+                env.Append(CCFLAGS=["-msse4.2"])
+                env.Append(CCFLAGS=["-mpopcnt"])
+                env.Append(CCFLAGS=["-mmmx"])
+                env.Append(CCFLAGS=["-mcx16"])
 
         if "treevec" in selected_experimental_optimizations:
             env.Append(CCFLAGS=["-ftree-vectorize"])
@@ -3330,9 +3360,9 @@ if not env.TargetOSIs('windows', 'macOS') and (env.ToolchainIs('GCC', 'clang')):
     # heavy versions can cause clock speed reductions.
     if "sandybridge" in selected_experimental_optimizations:
         default_targeting_flags_for_architecture["x86_64"] = {
-            # "-march=": "x86-64",
+            "-march=": "x86-64",
             # "-mtune=": "x86-64",
-            "-march=": "goldmont",
+            # "-march=": "goldmont",
             "-mtune=": "generic",
             "-mprefer-vector-width=": "128",
         }
