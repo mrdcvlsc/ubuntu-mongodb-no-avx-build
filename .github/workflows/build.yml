@@ -17,13 +17,13 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-        - { os: ubuntu-20.04, zipper: zip -r }
+        # - { os: ubuntu-20.04, zipper: zip -r }
         - { os: ubuntu-22.04, zipper: zip -r }
-        - { os: ubuntu-24.04, zipper: zip -r }
+        # - { os: ubuntu-24.04, zipper: zip -r }
         mongo_release:
         - { version: 8.0.4 }
-        - { version: 7.0.16 }
-        - { version: 6.0.20 }
+        # - { version: 7.0.16 }
+        # - { version: 6.0.20 }
 
     steps:
 
