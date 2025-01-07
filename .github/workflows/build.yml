@@ -111,7 +111,7 @@ jobs:
         python3.10 -m pip install cxxfilt
 
         cp ../SConstruct-Patch ./SConstruct
-        python3.10 buildscripts/scons.py MONGO_VERSION=${{ matrix.mongo_release.version }} install-mongod --force-jobs --jobs=8 --disable-warnings-as-errors --linker=gold
+        python3.10 buildscripts/scons.py MONGO_VERSION=${{ matrix.mongo_release.version }} install-mongod --jobs=4 --disable-warnings-as-errors --linker=gold
 
     - name: Compress Folder ./mongo-r${{ matrix.mongo_release.version }}/build/install/bin
       run: ${{ matrix.platform.zipper }} mongo-r${{ matrix.mongo_release.version }}-${{ matrix.platform.os }}.zip ./mongo-r${{ matrix.mongo_release.version }}/build/install/bin
